@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#030203">
+<title>AYLIN</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23030203'/%3E%3Crect x='11' y='11' width='10' height='10' fill='%23d01630' transform='rotate(45 16 16)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Loaded without blocking the first paint; the layout re-fits itself when the faces arrive. -->
+<link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500&display=swap">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500&display=swap"></noscript>
+<style>
+:root{
+  color-scheme:dark;
+  --void:#030203;--ruby:#d01630;--blood:#9b0e22;--burgundy:#62091a;
+  --silver:#bdb3b8;--rose:#a89099;
+  --gothic:"Pirata One","UnifrakturCook","UnifrakturMaguntia","Old English Text MT",serif;
+  --serif:"Cormorant Garamond","Cormorant",Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--void)}
+body{min-height:100svh;overflow-x:hidden;color:var(--silver);font-family:var(--serif);
+  background:radial-gradient(ellipse at 50% 42%,#0b0306 0%,var(--void) 60%,#010101 100%) var(--void);
+  -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+#scene{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.grain{position:fixed;inset:0;z-index:2;pointer-events:none;background-size:160px 160px;opacity:.9}
+
+/* ---------- composition ---------- */
+.stage{position:relative;z-index:1;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(1rem,3vh,2rem);padding:max(2vh,env(safe-area-inset-top)) 1rem max(2vh,env(safe-area-inset-bottom));overflow-x:clip}
+.wrap{position:relative;flex:none;width:300px;height:300px}
+.ded{text-align:center;max-width:34rem;flex:none}
+.name{margin:0;font-weight:500;font-size:clamp(1.55rem,4.4vw,2.7rem);line-height:1.1;letter-spacing:.5em;padding-left:.5em;
+  white-space:nowrap;filter:drop-shadow(0 0 var(--ng,0px) rgba(208,22,48,var(--na,0)))}
+.name span{display:inline-block;opacity:0;color:transparent;
+  background-image:linear-gradient(104deg,rgba(255,238,242,0) 0,rgba(255,238,242,.95) 50%,rgba(255,238,242,0) 100%),linear-gradient(var(--silver),var(--silver));
+  background-repeat:no-repeat;background-size:150px 100%,100% 100%;
+  background-position:calc(var(--sw,-600px) - var(--ox,0px) - 75px) 0,0 0;
+  -webkit-background-clip:text;background-clip:text}
+.orn{height:1px;width:min(9rem,40vw);margin:.95rem auto 1.05rem;position:relative}
+.orn i{position:absolute;inset:0;background:linear-gradient(90deg,transparent,var(--blood),transparent);transform:scaleX(var(--o1,0))}
+.orn::after{content:"";position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px;background:var(--ruby);transform:rotate(45deg) scale(var(--o2,0))}
+.q{margin:0;font-style:italic;font-weight:400;font-size:clamp(1.05rem,2.3vw,1.4rem);line-height:1.55;color:var(--rose)}
+.q span{display:block;opacity:0}
+.q em{color:#d5304a;text-shadow:0 0 calc(var(--em,0)*16px) rgba(225,35,65,calc(var(--em,0)*.85))}
+
+@media (max-height:520px) and (min-aspect-ratio:13/10){
+  .stage{flex-direction:row;gap:clamp(1.5rem,5vw,4rem);padding-left:max(1.5rem,env(safe-area-inset-left));padding-right:max(1.5rem,env(safe-area-inset-right))}
+  .ded{max-width:min(24rem,38vw)}
+  .name{font-size:clamp(1.3rem,3.4vw,2rem)}
+  .q{font-size:clamp(.95rem,1.9vw,1.2rem)}
+}
+
+/* ---------- entry (only shown when the browser blocks autoplay) ---------- */
+.enter{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;
+  background:var(--void);border:0;margin:0;padding:0;color:var(--rose);font-family:var(--serif);cursor:pointer;
+  opacity:0;visibility:hidden;transition:opacity 1.6s ease,visibility 0s linear 1.6s}
+.enter.on{opacity:1;visibility:visible;transition:opacity .9s ease}
+.enter .seed{width:8px;height:8px;background:var(--ruby);transform:rotate(45deg);box-shadow:0 0 22px 4px rgba(208,22,48,.5);animation:seed 2.6s ease-in-out infinite}
+.enter .txt{font-style:italic;font-size:clamp(1rem,2.4vw,1.2rem);letter-spacing:.34em;padding-left:.34em;opacity:0;transition:opacity 1.2s ease .3s}
+.enter.tap .txt{opacity:.85}
+.enter:focus-visible .txt{text-decoration:underline;text-underline-offset:.5em}
+@keyframes seed{0%,100%{opacity:.55;transform:rotate(45deg) scale(.85)}18%{opacity:1;transform:rotate(45deg) scale(1.15)}34%{opacity:.7;transform:rotate(45deg) scale(.95)}46%{opacity:.9;transform:rotate(45deg) scale(1.05)}}
+
+/* ---------- quiet messages ---------- */
+.note{position:fixed;left:50%;bottom:calc(76px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:25;width:max-content;max-width:min(32rem,90vw);
+  text-align:center;font-style:italic;font-size:1rem;line-height:1.4;color:var(--rose);opacity:0;pointer-events:none;transition:opacity .9s ease}
+.note.on{opacity:.9}
+
+/* ---------- dock: appears on activity, otherwise leaves the picture alone ---------- */
+.dock{position:fixed;left:50%;bottom:max(14px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:20;display:flex;align-items:center;gap:2px;
+  padding:3px 8px;border-radius:999px;background:rgba(8,3,5,.78);border:1px solid rgba(168,144,153,.14);
+  opacity:0;pointer-events:none;transition:opacity .7s ease}
+.dock.show,.dock:focus-within{opacity:1;pointer-events:auto}
+.dock button{all:unset;box-sizing:border-box;width:40px;height:40px;display:grid;place-items:center;border-radius:50%;color:var(--rose);opacity:.7;cursor:pointer;transition:opacity .25s,color .25s}
+.dock button:hover{opacity:1;color:var(--silver)}
+.dock button:focus-visible{outline:1px solid var(--rose);outline-offset:-3px;opacity:1}
+.dock svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.dock .sep{width:1px;height:18px;background:rgba(168,144,153,.18);margin:0 4px}
+.vol{width:0;opacity:0;transition:width .35s ease,opacity .35s ease;overflow:hidden;display:flex;align-items:center}
+.dock:hover .vol,.dock:focus-within .vol{width:86px;opacity:1}
+@media (hover:none){.vol{width:76px;opacity:1}}
+.vol input{width:76px;margin:0;-webkit-appearance:none;appearance:none;background:transparent;height:40px;cursor:pointer}
+.vol input::-webkit-slider-runnable-track{height:2px;background:linear-gradient(90deg,var(--blood) var(--v,85%),rgba(168,144,153,.28) var(--v,85%));border-radius:2px}
+.vol input::-moz-range-track{height:2px;background:rgba(168,144,153,.28);border-radius:2px}
+.vol input::-moz-range-progress{height:2px;background:var(--blood)}
+.vol input::-webkit-slider-thumb{-webkit-appearance:none;width:11px;height:11px;margin-top:-4.5px;border-radius:50%;background:var(--silver);border:0}
+.vol input::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--silver);border:0}
+.vol input:focus-visible{outline:1px solid var(--rose);outline-offset:-6px}
+
+/* ---------- calibration (secondary tool, closed by default) ---------- */
+.cal{position:fixed;left:50%;bottom:0;transform:translateX(-50%);z-index:40;width:min(46rem,100vw);max-height:62vh;overflow:auto;
+  background:rgba(7,2,4,.95);border:1px solid rgba(168,144,153,.16);border-bottom:0;border-radius:14px 14px 0 0;
+  padding:12px 16px calc(14px + env(safe-area-inset-bottom));font-family:var(--serif);font-size:1rem;color:var(--silver);user-select:text;-webkit-user-select:text}
+.cal[hidden]{display:none}
+.cal header{display:flex;align-items:baseline;gap:.8rem;margin-bottom:.6rem}
+.cal header strong{font-weight:500;font-size:1.15rem;letter-spacing:.04em}
+.cal header span{flex:1;font-style:italic;color:var(--rose);font-size:.92rem;line-height:1.3}
+.cal canvas{display:block;width:100%;height:64px;margin:.2rem 0 .7rem;cursor:pointer;border-radius:4px;background:#0b0306}
+.cal .rows{display:grid;grid-template-columns:1fr auto auto auto;gap:4px 8px;align-items:center}
+.cal label{font-size:.98rem;color:var(--silver)}
+.cal label small{display:block;font-style:italic;color:var(--rose);font-size:.82rem;line-height:1.15}
+.cal input[type=number]{width:6.2rem;background:#0f0508;color:var(--silver);border:1px solid rgba(168,144,153,.25);border-radius:4px;padding:5px 6px;font:inherit;font-variant-numeric:tabular-nums}
+.cal button{font:inherit;font-size:.9rem;color:var(--rose);background:transparent;border:1px solid rgba(168,144,153,.28);border-radius:4px;padding:4px 10px;cursor:pointer}
+.cal button:hover{color:var(--silver);border-color:rgba(168,144,153,.55)}
+.cal button:focus-visible,.cal input:focus-visible{outline:1px solid var(--rose);outline-offset:1px}
+.cal footer{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:.8rem}
+.cal footer .clock{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--rose)}
+.cal textarea{width:100%;height:9.5rem;margin-top:.6rem;background:#0f0508;color:var(--silver);border:1px solid rgba(168,144,153,.25);border-radius:4px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;padding:8px}
+.cal textarea[hidden]{display:none}
+@media (max-width:520px){.cal .rows{grid-template-columns:1fr auto auto}.cal .rows .go{display:none}}
+
+/* ---------- reduced motion: a still composition, music only ---------- */
+.rm .enter .seed{animation:none}
+.rm .enter,.rm .enter.on,.rm .note,.rm .dock,.rm .vol{transition:none}
+</style>
+</head>
+<body>
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="grain" id="grain" aria-hidden="true"></div>
+
+<main class="stage" id="stage">
+  <div class="wrap" id="wrap" role="img" aria-label="The words LOVE YOU, written many times, forming the shape of a heart"></div>
+  <section class="ded" id="ded">
+    <h1 class="name" id="name"></h1>
+    <div class="orn" aria-hidden="true"><i></i></div>
+    <p class="q" id="quote"></p>
+  </section>
+</main>
+
+<button class="enter" id="enter" type="button" aria-label="Tap to enter. Starts the music and the animation."><span class="seed" aria-hidden="true"></span><span class="txt">Tap to enter</span></button>
+<div class="note" id="note" role="status" aria-live="polite"></div>
+
+<nav class="dock" id="dock" aria-label="Playback">
+  <button id="bPlay" type="button" aria-label="Pause" title="Play / pause (Space)"></button>
+  <button id="bRestart" type="button" aria-label="Restart from the beginning" title="Restart (R)"><svg viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.4-5.5"/><path d="M4.5 4.5v4h4"/></svg></button>
+  <button id="bMute" type="button" aria-label="Mute" title="Mute (M)"></button>
+  <span class="vol"><input id="vol" type="range" min="0" max="1" step="0.01" value="0.85" aria-label="Volume"></span>
+  <span class="sep" aria-hidden="true"></span>
+  <button id="bLoad" type="button" aria-label="Choose another soundtrack" title="Choose another soundtrack (L)"><svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg></button>
+  <button id="bCal" type="button" aria-label="Calibrate cue times" title="Calibrate cues (C)"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
+</nav>
+
+<section class="cal" id="cal" hidden aria-label="Cue calibration">
+  <header><strong>Calibrate cues</strong><span id="calInfo"></span><button id="calClose" type="button" aria-label="Close calibration">Close</button></header>
+  <canvas id="calStrip" aria-label="Soundtrack timeline. Click to seek."></canvas>
+  <div class="rows" id="calRows"></div>
+  <footer>
+    <button id="calCopy" type="button">Copy cues</button>
+    <button id="calReset" type="button">Reset</button>
+    <span class="clock" id="calClock"></span>
+  </footer>
+  <textarea id="calOut" readonly hidden aria-label="Cue configuration to paste into CONFIG"></textarea>
+</section>
+
+<input type="file" id="file" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac" hidden>
+<audio id="audio" preload="auto" playsinline></audio>
+
+<noscript><p style="position:fixed;inset:0;display:grid;place-items:center;margin:0;color:#a89099;font-style:italic">This page needs JavaScript.</p></noscript>
+
+<!--AYLIN_EMBED-->
+<script>
+(()=>{
+'use strict';
+
+/* ======================================================================
+   CONFIG — the things you are meant to edit
+   ====================================================================== */
+const CONFIG = {
+  recipient: 'AYLIN',
+  dedication: ['Even in a world made of darkness,', 'my soul would find its way to <em>you</em>.'],
+  word: 'LOVE YOU',
+
+  audio: {
+    src: 'assets/soundtrack.mp3',   // used by index.html when served over http(s); aylin.html carries the audio inside itself
+    volume: 0.85
+  },
+
+  /* Seconds added to the audio clock before the visuals are drawn.
+     Leave at 0. Use a small negative number (e.g. -0.12) if the sound reaches your ears late (Bluetooth speakers). */
+  syncOffset: 0,
+
+  /* ---- CUE TIMELINE (seconds into the soundtrack) -------------------------------------------------
+     These were placed from an analysis of the supplied file: it is one 16.3 s phrase repeated four times
+     (0.3–16.7, 20.4–36.8, 37.9–54.3, 58.0–74.4 s) with silences between, a steady 98.2 BPM pulse, and a strong
+     beat every second beat (1.222 s). Every cue below sits on one of those strong beats.
+     Edit the numbers here, or press C on the page to calibrate by ear and copy the result back in.        */
+  cues: {
+    ember:        0.35,   // a single seed of crimson light appears in the dark
+    heartBegin:   1.96,   // the first words of LOVE YOU appear at the core (strong beat)
+    heartFormed: 15.40,   // the last word is in place: the whole heart exists, still cold
+    heartAwake:  20.84,   // the music returns after the silence; warmth starts to spread outward from the core
+    heartAlive:  28.17,   // warmth reaches the edge on the loudest strong beat of that phrase
+    nameReveal:  30.61,   // AYLIN rises, letter by letter
+    nameSweep:   38.35,   // music re-enters after a short silence: a light travels across the name
+    dedication1: 40.79,   // first line of the dedication
+    dedication2: 45.68,   // second line, on the swell of that phrase; "you" begins to glow with the heartbeat
+    climax:      65.78,   // last swell: a wave of light crosses the heart and the pulse quickens for six beats
+    resolve:     69.44    // the heart exhales and settles; it keeps beating slowly after the music ends
+  },
+
+  /* Heartbeat locked to the soundtrack's own pulse (fitted offline to the supplied file).
+     'anchors' are the first strong beat of each phrase; a lub lands on every strong beat. For any other
+     soundtrack this block is ignored and the pulse is derived from low-frequency onsets instead.            */
+  music: {
+    beat: { period: 0.6111, accentEvery: 2, anchors: [0.736, 20.836, 38.346, 58.442], dubDelay: 0.3055, quickenFor: 3.7 }
+  }
+};
+const CUE_INFO = [
+  ['ember','Seed of light'],['heartBegin','First words appear'],['heartFormed','Heart complete, still cold'],
+  ['heartAwake','Warmth begins'],['heartAlive','Heart fully alive'],['nameReveal','Name appears'],
+  ['nameSweep','Light sweeps the name'],['dedication1','Dedication, line 1'],['dedication2','Dedication, line 2'],
+  ['climax','Climax bloom'],['resolve','Exhale and settle']
+];
+const DEFAULT_CUES = Object.assign({}, CONFIG.cues);
+const cues = CONFIG.cues;
+
+/* ======================================================================
+   utilities
+   ====================================================================== */
+const $ = s => document.querySelector(s);
+const clamp = (v,a=0,b=1) => v<a?a:v>b?b:v;
+const lerp = (a,b,t) => a+(b-a)*t;
+const smooth = t => { t=clamp(t); return t*t*(3-2*t); };
+const easeOut = t => 1-Math.pow(1-clamp(t),3);
+const invSmooth = q => .5-Math.sin(Math.asin(1-2*clamp(q))/3);   // inverse of smoothstep
+const bump = x => (x<=0||x>=1) ? 0 : Math.pow(Math.sin(Math.PI*x),2);
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const fmt = s => { s=Math.max(0,s); const m=Math.floor(s/60); return m+':'+(s-m*60).toFixed(2).padStart(5,'0'); };
+
+const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (RM) document.documentElement.classList.add('rm');
+
+const el = {
+  scene:$('#scene'), grain:$('#grain'), stage:$('#stage'), wrap:$('#wrap'), ded:$('#ded'), name:$('#name'), quote:$('#quote'),
+  enter:$('#enter'), note:$('#note'), dock:$('#dock'), audio:$('#audio'), file:$('#file'),
+  bPlay:$('#bPlay'), bRestart:$('#bRestart'), bMute:$('#bMute'), vol:$('#vol'), bLoad:$('#bLoad'), bCal:$('#bCal'),
+  cal:$('#cal'), calInfo:$('#calInfo'), calStrip:$('#calStrip'), calRows:$('#calRows'), calCopy:$('#calCopy'), calReset:$('#calReset'),
+  calClock:$('#calClock'), calOut:$('#calOut'), calClose:$('#calClose')
+};
+const audio = el.audio;
+
+/* ======================================================================
+   copy: name + dedication come from CONFIG
+   ====================================================================== */
+const letters = [...CONFIG.recipient].map((c,i)=>{ const s=document.createElement('span'); s.textContent=c; s.setAttribute('aria-hidden','true'); el.name.appendChild(s); return s; });
+el.name.setAttribute('aria-label', CONFIG.recipient);
+const lines = CONFIG.dedication.map(h=>{ const s=document.createElement('span'); s.innerHTML=h; el.quote.appendChild(s); return s; });
+const youEm = el.quote.querySelector('em');
+document.title = CONFIG.recipient;
+
+/* ======================================================================
+   heart geometry
+   The prototype used the implicit curve (x²+y²−1)³ = x²y³: a shallow cleft and a blunt base, and its row packer
+   dropped every row narrower than 0.8 words, which cut the point off. This uses a deeper-cleft parametric heart
+   (x = 16 sin³t, y = 13cos t − 5cos 2t − 2cos 3t − cos 4t, narrowed 7%), exact scanline intersection, and
+   words that taper in size toward the lobes' tops and the lower point.
+   ====================================================================== */
+const HEART = (()=>{
+  const N=720, WX=.93, pts=[];
+  for(let i=0;i<N;i++){ const t=i/N*Math.PI*2;
+    pts.push([WX*16*Math.pow(Math.sin(t),3), 13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t)]); }
+  let ymin=1e9,ymax=-1e9,xmax=0;
+  for(const p of pts){ if(p[1]<ymin)ymin=p[1]; if(p[1]>ymax)ymax=p[1]; if(Math.abs(p[0])>xmax)xmax=Math.abs(p[0]); }
+  let A=0,cy=0;                                           // polygon centroid
+  for(let i=0;i<N;i++){ const p=pts[i],q=pts[(i+1)%N],a=p[0]*q[1]-q[0]*p[1]; A+=a; cy+=(p[1]+q[1])*a; }
+  cy/=(3*A); const cx=0;
+  const RT=360, R=new Float32Array(RT);                   // radial boundary table (the heart is star-shaped about its centroid)
+  for(let a=0;a<RT;a++){ const th=a/RT*Math.PI*2, dx=Math.cos(th), dy=Math.sin(th); let best=0;
+    for(let i=0;i<N;i++){ const p=pts[i],q=pts[(i+1)%N], ex=q[0]-p[0], ey=q[1]-p[1], den=dx*ey-dy*ex; if(Math.abs(den)<1e-9)continue;
+      const px=p[0]-cx, py=p[1]-cy, s=(px*ey-py*ex)/den, u=(px*dy-py*dx)/den; if(s>0&&u>=0&&u<1&&s>best)best=s; }
+    R[a]=best; }
+  /* how many "nested hearts" out from the core a point lies: 0 at the centre, 1 on the outline */
+  function rho(x,y){ const dx=x-cx, dy=y-cy, d=Math.hypot(dx,dy); let th=Math.atan2(dy,dx); if(th<0)th+=Math.PI*2;
+    const f=th/(Math.PI*2)*RT, i=Math.floor(f)%RT, j=(i+1)%RT, w=f-Math.floor(f); return d/(R[i]*(1-w)+R[j]*w); }
+  function runs(y){ const xs=[]; for(let i=0;i<N;i++){ const p=pts[i],q=pts[(i+1)%N];
+      if((p[1]<=y&&q[1]>y)||(q[1]<=y&&p[1]>y)) xs.push(p[0]+(y-p[1])/(q[1]-p[1])*(q[0]-p[0])); }
+    xs.sort((a,b)=>a-b); const o=[]; for(let i=0;i+1<xs.length;i+=2)o.push([xs[i],xs[i+1]]); return o; }
+  return { ymin, ymax, xmax, cx, cy, rho, runs, asp:2*xmax/(ymax-ymin) };
+})();
+function intersect(A,B){ const o=[]; let i=0,j=0; while(i<A.length&&j<B.length){ const lo=Math.max(A[i][0],B[j][0]), hi=Math.min(A[i][1],B[j][1]); if(hi>lo)o.push([lo,hi]); if(A[i][1]<B[j][1])i++; else j++; } return o; }
+
+/* ---------- fonts ---------- */
+const STACK = '"Pirata One","UnifrakturCook","UnifrakturMaguntia","Old English Text MT",serif';
+const WORD = CONFIG.word, LS = .05;                     // tracking in em
+const mctx = document.createElement('canvas').getContext('2d');
+function measureWord(f){ mctx.font=f+'px '+STACK; let w=0; for(const ch of WORD) w+=mctx.measureText(ch).width; return w+(WORD.length-1)*f*LS; }
+
+/* ---------- layout: rows of words packed into the silhouette ---------- */
+const PITCH=.84, SCALES=[1,.82,.66,.52,.42], S_MIN=.80, S_MAX=1.34;
+function fitRuns(runs,u,cxp,ww,f,yc,rs){
+  const out=[], inset=f*.06, gMin=ww*.11;
+  for(const [a,b] of runs){
+    const x0=cxp+a*u+inset, x1=cxp+b*u-inset, w=x1-x0;
+    if(w<ww*S_MIN) continue;
+    let best=null; const nmax=Math.floor((w+gMin)/(S_MIN*ww+gMin));
+    for(let n=1;n<=nmax;n++){
+      const s=clamp((w-(n-1)*gMin)/(n*ww),S_MIN,S_MAX), used=n*s*ww+(n-1)*gMin; if(used>w+.5)continue;
+      const left=w-used, cost=left+.35*ww*Math.abs(Math.log(s)); if(!best||cost<best.cost)best={n,s,left,cost};
+    }
+    if(!best) continue;
+    const {n,s,left}=best, sw=s*ww; let gap=gMin, start;
+    if(n>1){ gap=gMin+Math.min(left/(n-1),ww*.45); start=x0+(w-(n*sw+(n-1)*gap))/2; } else start=x0+(w-sw)/2;
+    for(let k=0;k<n;k++) out.push({ x:start+k*(sw+gap)+sw/2, y:yc, sx:s*rs, sy:rs });
+  }
+  return out;
+}
+function layoutWords(W,H,f){
+  const u=H/(HEART.ymax-HEART.ymin), cxp=W/2, ww0=measureWord(f), items=[];
+  let cursor=0, minIdx=0, guard=0;
+  while(cursor<H-f*.25 && guard++<600){
+    let placed=false;
+    for(let si=minIdx; si<SCALES.length; si++){
+      const rs=SCALES[si], rowH=f*PITCH*rs, yc=cursor+rowH/2;
+      const ys=[yc-.42*rowH,yc,yc+.42*rowH].map(py=>HEART.ymax-py/u);
+      const r=intersect(intersect(HEART.runs(ys[0]),HEART.runs(ys[1])),HEART.runs(ys[2]));
+      const row=fitRuns(r,u,cxp,ww0*rs,f*rs,yc,rs);
+      if(row.length){ items.push(...row); cursor+=rowH; minIdx=Math.max(0,si-1); placed=true; break; }
+    }
+    if(!placed) cursor+=f*.1;
+  }
+  const rand=rng(1847);
+  for(const it of items){
+    const hx=(it.x-W/2)/u, hy=HEART.ymax-it.y/u;
+    it.rn=clamp(HEART.rho(hx,hy),0,1);
+    const ang=(Math.atan2(hy-HEART.cy,hx)+Math.PI)/(Math.PI*2);
+    it.key=it.rn+.10*ang+(rand()-.5)*.05;                // outward from the core, with a slow turn so it is not a perfect ring
+    it.j=rand()-.5;                                      // small timing jitter
+    const q=rand();
+    it.kind = q<.05 ? 'rose' : q<.075 ? 'silver' : 'ruby';
+    it.bucket = clamp(Math.round((it.rn*1.1+(rand()-.5)*.14)*11),0,11);
+    it.bin = Math.min(7,Math.floor(it.rn*8));
+    it.dh = rand();
+  }
+  const order=items.map((_,i)=>i).sort((a,b)=>items[a].key-items[b].key);
+  order.forEach((idx,rank)=>{ items[idx].u=invSmooth((rank+.5)/items.length); });
+  return { items, u, ww0 };
+}
+
+/* ---------- sprites: each colour is rendered once, then drawn many times ---------- */
+const PAL=[[214,24,50],[160,14,36],[108,11,30]];
+function ramp(t){ const x=clamp(t)*2, i=Math.min(1,Math.floor(x)), v=x-i; return PAL[i].map((c,k)=>Math.round(c+(PAL[i+1][k]-c)*v)); }
+let SP=null;
+function buildSprites(f,ww,dpr){
+  const sc=clamp(dpr*1.3,1.5,3), pad=Math.ceil(f*.55*sc), w=Math.ceil(ww*sc+pad*2), h=Math.ceil(f*1.2*sc+pad*2);
+  const mk=()=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c;};
+  const font=(f*sc)+'px '+STACK, ls=f*sc*LS;
+  mctx.font=font; const asc=mctx.measureText('L').actualBoundingBoxAscent||f*sc*.7, base=h/2+asc/2;
+  const draw=(c,x,fill,extra)=>{ c.font=font; c.textBaseline='alphabetic'; c.fillStyle=fill; if(extra)extra(c);
+    let cx=x; for(const ch of WORD){ c.fillText(ch,cx,base); cx+=c.measureText(ch).width+ls; } };
+  const solid=color=>{const c=mk(),g=c.getContext('2d');draw(g,pad,color);return c;};
+  const soft=()=>{const c=mk(),g=c.getContext('2d'),OFF=w*3;
+    draw(g,pad-OFF,'#000',cc=>{cc.shadowColor='rgb(205,20,48)';cc.shadowBlur=f*sc*.36;cc.shadowOffsetX=OFF;});
+    draw(g,pad-OFF,'#000',cc=>{cc.shadowColor='rgb(205,20,48)';cc.shadowBlur=f*sc*.14;cc.shadowOffsetX=OFF;});return c;};
+  SP={ sc, w, h, ghost:solid('rgb(104,15,36)'), flare:solid('rgb(255,120,138)'), soft:soft(),
+       hot:Array.from({length:12},(_,i)=>solid('rgb('+ramp(i/11).join(',')+')')), rose:solid('rgb(176,112,124)'), silver:solid('rgb(160,150,156)') };
+}
+function radialSprite(size,stops){ const c=document.createElement('canvas'); c.width=c.height=size; const g=c.getContext('2d'), r=size/2, gr=g.createRadialGradient(r,r,0,r,r,r);
+  stops.forEach(([o,col])=>gr.addColorStop(o,col)); g.fillStyle=gr; g.fillRect(0,0,size,size); return c; }
+const HALO = radialSprite(256,[[0,'rgba(170,12,34,.62)'],[.28,'rgba(120,8,24,.30)'],[.62,'rgba(62,3,12,.10)'],[1,'rgba(0,0,0,0)']]);
+const SEED = radialSprite(64,[[0,'rgba(255,170,182,.95)'],[.18,'rgba(236,50,74,.7)'],[.5,'rgba(150,10,30,.22)'],[1,'rgba(0,0,0,0)']]);
+
+/* film grain: tiny static noise tile, there to stop the dark gradients from banding */
+(()=>{ const c=document.createElement('canvas'); c.width=c.height=128; const g=c.getContext('2d'), d=g.createImageData(128,128), r=rng(7);
+  for(let i=0;i<d.data.length;i+=4){ const v=r()*255; d.data[i]=d.data[i+1]=d.data[i+2]=v; d.data[i+3]=r()*14; }
+  g.putImageData(d,0,0); try{ el.grain.style.backgroundImage='url('+c.toDataURL()+')'; }catch(e){} })();
+
+/* ======================================================================
+   timeline: everything on screen is a pure function of the clock, so pause, seek and restart are exact
+   ====================================================================== */
+const DA=2.4, DH=2.6;                                  // seconds: a word coming into focus / warming up
+function timelineState(T){
+  const c=cues;
+  const seed=smooth((T-c.ember)/2.0);
+  const form=clamp((T-c.heartBegin)/Math.max(.1,c.heartFormed-c.heartBegin));
+  const awake=smooth((T-c.heartAwake)/Math.max(.1,c.heartAlive-c.heartAwake));
+  const bloomHold=smooth((T-c.climax)/3)*(1-smooth((T-c.resolve)/5));
+  const exhale=1-.28*smooth((T-c.resolve)/Math.max(2,(P.dur||75)+4-c.resolve));
+  return { seed, form, awake, bloomHold, exhale,
+    alive:.30+.18*form+.52*awake,                       // how strongly the heart beats
+    halo:.05*seed+.10*form+.34*awake+.22*bloomHold };
+}
+
+/* ======================================================================
+   heartbeat: a lub-dub on a list of pulse times, so it is a pure function of the clock as well
+   ====================================================================== */
+let pulses=[], pulseSource='idle';
+function buildPulsesGrid(){
+  const B=CONFIG.music.beat, P0=B.period, step=P0*B.accentEvery, A=B.anchors.slice().sort((a,b)=>a-b), horizon=Math.max(P.dur||75,A[A.length-1])+1500;
+  const out=[];
+  for(let i=0;i<A.length;i++){
+    const stop=i+1<A.length ? A[i+1]-.8 : horizon; let t=A[i], after=0;
+    while(t<stop){
+      out.push(t);
+      if(t>=cues.climax && t<cues.climax+B.quickenFor-.01 && t+P0<stop) out.push(t+P0);   // the pulse quickens at the climax
+      let iv=step; if(t>=cues.resolve){ after++; iv=step*Math.min(1.9,1+.12*after); }      // and slows as the heart settles
+      t+=iv;
+    }
+  }
+  out.sort((a,b)=>a-b);
+  const clean=[]; for(const t of out){ if(!clean.length||t-clean[clean.length-1]>.5)clean.push(t); }
+  pulses=clean; pulseSource='beat grid fitted to this soundtrack';
+}
+function buildPulsesFromEnv(low,hop,dur){
+  const n=low.length, os=new Float32Array(n); for(let i=1;i<n;i++){ const d=Math.log1p(40*low[i])-Math.log1p(40*low[i-1]); os[i]=d>0?d:0; }
+  let m=0,v=0; for(let i=0;i<n;i++)m+=os[i]; m/=n; for(let i=0;i<n;i++)v+=(os[i]-m)**2; const sd=Math.sqrt(v/n), th=m+1.4*sd;
+  const hits=[]; let last=-9;
+  for(let i=2;i<n-2;i++){ const t=i*hop; if(os[i]>th&&os[i]>=os[i-1]&&os[i]>=os[i+1]&&t-last>.9){hits.push(t);last=t;} }
+  const out=[]; let prev=Math.max(.5,hits[0]??.7);
+  if(prev>1.6){ for(let t=prev-1.3;t>.3;t-=1.3)out.unshift(t); }
+  for(const t of hits){ while(out.length&&t-prev>1.95){ prev+=1.3; out.push(prev); } out.push(t); prev=t; }
+  const horizon=Math.max(dur,prev)+1500; while(prev<horizon){ prev+=1.3; out.push(prev); }
+  out.sort((a,b)=>a-b); pulses=out; pulseSource='low-frequency onsets found in this soundtrack (approximate)';
+}
+function buildPulsesIdle(){ pulses=[]; for(let t=.7;t<(P.dur||75)+1500;t+=1.3)pulses.push(t); pulseSource='steady idle rhythm (soundtrack not analysed)'; }
+function lastPulse(T){ let lo=0,hi=pulses.length-1,r=-1; while(lo<=hi){ const m=(lo+hi)>>1; if(pulses[m]<=T){r=m;lo=m+1;}else hi=m-1; } return r; }
+const kern=(tau,a)=>tau<=0?0:(tau/a)*Math.exp(1-tau/a);
+function beatAt(T){
+  const i=lastPulse(T); if(i<0) return 0;
+  const tau=T-pulses[i], iv=(pulses[i+1]??pulses[i]+1.3)-pulses[i], dub=Math.min(CONFIG.music.beat.dubDelay,.36*iv);
+  return kern(tau,.085)+.55*kern(tau-dub,.08);
+}
+
+/* ======================================================================
+   player + clock: the audio element is the master clock; a wall clock stands in only if no audio can load
+   ====================================================================== */
+const P = { mode:'none', ended:false, dur:0, wallT:0, wallLast:0, wallPlaying:false, endedAt:0, vol:CONFIG.audio.volume, muted:false, started:false, builtin:false, name:'', loading:true, failed:false };
+let lastAT=0, lastTS=0, prevT=0;
+const isPlaying = () => P.mode==='audio' ? (!audio.paused && !P.ended) : (P.mode==='wall' ? P.wallPlaying : false);
+function getT(ts){
+  if(P.mode==='audio'){
+    const at=audio.currentTime;
+    if(P.ended) return P.dur+(ts-P.endedAt)/1000;          // after the music ends, the picture keeps living
+    if(!audio.paused){
+      if(at!==lastAT){ lastAT=at; lastTS=ts; }
+      let est=lastAT+(ts-lastTS)/1000; if(Math.abs(est-at)>.08){ est=at; lastAT=at; lastTS=ts; }
+      return est;
+    }
+    lastAT=at; lastTS=ts; return at;
+  }
+  if(P.mode==='wall'){ if(P.wallPlaying) P.wallT+=(ts-P.wallLast)/1000; P.wallLast=ts; if(P.wallT>P.dur&&P.wallPlaying){ P.ended=true; P.endedAt=ts-(P.wallT-P.dur)*1000; P.wallPlaying=false; } return P.ended?P.dur+(ts-P.endedAt)/1000:P.wallT; }
+  return 0;
+}
+function seek(t){
+  t=clamp(t,0,Math.max(0,P.dur-.05)); P.ended=false;
+  if(P.mode==='audio'){ try{ audio.currentTime=t; }catch(e){} lastAT=t; lastTS=performance.now(); }
+  else if(P.mode==='wall'){ P.wallT=t; P.wallLast=performance.now(); }
+  prevT=t-1; resetReact(); dirty=true;
+}
+async function play(){
+  if(P.mode==='audio'){ if(P.ended){ seek(0); } try{ await audio.play(); }catch(e){ return handlePlayError(e); } }
+  else if(P.mode==='wall'){ if(P.ended){ seek(0); } P.wallPlaying=true; P.wallLast=performance.now(); }
+  P.started=true; syncButtons();
+}
+function pause(){ if(P.mode==='audio')audio.pause(); else if(P.mode==='wall')P.wallPlaying=false; syncButtons(); }
+function toggle(){ unlockAudio(); isPlaying()?pause():play(); }
+function restart(){ unlockAudio(); hideEnter(); seek(0); play(); }
+
+/* ---------- loading the soundtrack ---------- */
+let blobUrl=null, env=null, canHook=false;
+function b64ToBlob(b64,type){ const bin=atob(b64), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i); return new Blob([u],{type}); }
+function waitForAudio(){
+  return new Promise((res,rej)=>{
+    if(audio.readyState>=3) return res();
+    const ok=()=>{clean();res();}, bad=()=>{clean();rej(audio.error||new Error('audio failed'));};
+    const clean=()=>{audio.removeEventListener('canplay',ok);audio.removeEventListener('error',bad);};
+    audio.addEventListener('canplay',ok); audio.addEventListener('error',bad);
+  });
+}
+let swapping=false;
+async function useSource(url,{blob=null,name='',builtin=false}={}){
+  if(blobUrl&&blobUrl!==url){ URL.revokeObjectURL(blobUrl); blobUrl=null; }
+  if(url.startsWith('blob:')) blobUrl=url;
+  if(!hooked) canHook=!!blob;                            // only same-origin blobs can safely pass through the analyser
+  P.name=name; P.builtin=builtin; P.ended=false; env=null; swapping=true;
+  audio.src=url; audio.load();
+  try{ await waitForAudio(); } finally { swapping=false; }
+  P.mode='audio'; P.failed=false; P.wallPlaying=false; P.dur=audio.duration&&isFinite(audio.duration)?audio.duration:(P.dur||75);
+  applyVolume();
+  if(builtin){ cuesSource='analysed from this file'; buildPulsesGrid(); } else buildPulsesIdle();
+  if(blob) analyse(blob).then(r=>{ env=r; if(!builtin){ P.dur=r.duration||P.dur; suggestCues(r); buildPulsesFromEnv(r.low,r.hop,P.dur); } calDirty=true; }).catch(()=>{ calDirty=true; });
+  calDirty=true; dirty=true;
+}
+async function loadDefault(){
+  let blob=null;
+  if(window.__AYLIN_AUDIO__){ try{ blob=b64ToBlob(window.__AYLIN_AUDIO__,'audio/mpeg'); }catch(e){} }
+  else { try{ const r=await fetch(CONFIG.audio.src); if(!r.ok)throw 0; blob=await r.blob(); }catch(e){} }
+  if(blob) return useSource(URL.createObjectURL(blob),{blob,name:'soundtrack',builtin:true});
+  return useSource(CONFIG.audio.src,{name:'soundtrack',builtin:true});   // plain path: still plays, just without the analyser
+}
+async function loadUserFile(file){
+  note('Loading “'+file.name+'”…',4000);
+  const wasBuiltin=P.builtin;
+  try{
+    pause(); await useSource(URL.createObjectURL(file),{blob:file,name:file.name,builtin:false});
+    Object.assign(cues,DEFAULT_CUES); cuesSource='suggested from this file';
+    P.failed=false; el.note.classList.remove('on');
+    seek(0); hideEnter(); await play();
+    note('“'+file.name+'” is playing. Cue times are suggested from its loudness; press C to adjust them by ear.',7000);
+  }catch(e){ note('That file could not be played. Try an mp3, m4a, wav or ogg.',6000); if(wasBuiltin) loadDefault().catch(()=>{}); }
+}
+
+/* ---------- autoplay: try once, fall back to a quiet "Tap to enter" ---------- */
+async function boot(){
+  loadingTimer=setTimeout(()=>{ if(!P.started&&!enterShown) setEnter('wait'); },2200);
+  try{ await loadDefault(); }
+  catch(e){ clearTimeout(loadingTimer); return audioUnavailable(e); }
+  clearTimeout(loadingTimer);
+  try{ await audio.play(); onStarted(); }
+  catch(e){ handlePlayError(e); }
+}
+let loadingTimer=0, enterShown=false;
+function handlePlayError(e){
+  if(e&&e.name==='AbortError') return;                    // superseded by another load
+  if(e&&e.name==='NotAllowedError'){ setEnter('tap'); return; }
+  audioUnavailable(e);
+}
+function setEnter(mode){ enterShown=true; el.enter.classList.add('on'); el.enter.classList.toggle('tap',mode==='tap'); if(mode==='tap'){ try{el.enter.focus({preventScroll:true});}catch(e){} } }
+function hideEnter(){ enterShown=false; el.enter.classList.remove('on','tap'); }
+function onStarted(){ P.started=true; hideEnter(); syncButtons(); tryHook(); }
+async function enterNow(){
+  if(!enterShown) return;
+  hideEnter(); unlockAudio();
+  if(P.mode==='audio'){ try{ await audio.play(); onStarted(); }catch(e){ handlePlayError(e); } }
+}
+function audioUnavailable(e){
+  // The picture must never depend on the sound: run the same timeline on a wall clock and say so, quietly.
+  P.failed=true; P.mode='wall'; P.dur=Math.max(P.dur||0,cues.resolve+8); P.wallT=0; P.wallLast=performance.now(); P.wallPlaying=true; P.started=true;
+  if(!pulses.length) buildPulsesIdle();
+  hideEnter(); syncButtons(); dirty=true;
+  note('The soundtrack could not be loaded, so this is playing in silence. Drop an audio file here, or press L, to add one.',9000);
+}
+audio.addEventListener('error',()=>{ if(!swapping&&P.mode==='audio'&&!P.failed){ audioUnavailable(audio.error); } });
+audio.addEventListener('ended',()=>{ P.ended=true; P.endedAt=performance.now(); syncButtons(); });
+audio.addEventListener('play',()=>{ P.ended=false; syncButtons(); });
+audio.addEventListener('pause',()=>syncButtons());
+
+/* ---------- volume + analyser ---------- */
+let ac=null, an=null, gainNode=null, hooked=false, fd=null;
+function applyVolume(){ const v=P.muted?0:P.vol; if(hooked&&gainNode){ gainNode.gain.value=v; audio.volume=1; } else audio.volume=v; }
+function tryHook(){
+  if(hooked||!canHook) return;
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC) return;
+    if(!ac) ac=new AC();
+    if(ac.state!=='running') return;                      // a suspended context would silence the element: only connect once it is running
+    const src=ac.createMediaElementSource(audio); an=ac.createAnalyser(); an.fftSize=1024; an.smoothingTimeConstant=.7;
+    gainNode=ac.createGain(); src.connect(an); an.connect(gainNode); gainNode.connect(ac.destination); fd=new Uint8Array(an.frequencyBinCount);
+    hooked=true; applyVolume();
+  }catch(e){ hooked=false; }
+}
+function unlockAudio(){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(AC&&!ac&&canHook) ac=new AC();
+    if(ac&&ac.state==='suspended'){ ac.resume().then(tryHook).catch(()=>{}); } else tryHook();
+  }catch(e){}
+}
+['pointerdown','keydown','touchend'].forEach(ev=>addEventListener(ev,()=>{ if(!hooked) unlockAudio(); },{capture:true,passive:true}));
+
+/* ======================================================================
+   System 1 — live response. Smoothed, normalised, never raw: it only shapes brightness and glow.
+   It reads the AnalyserNode when it is connected, otherwise the decoded envelope of the file.
+   ====================================================================== */
+const react={ level:0, bass:0, air:0, peak:.2, hist:new Float32Array(64), hp:0 };
+function resetReact(){ react.level=react.bass=react.air=0; react.hist.fill(0); }
+function updateReact(dt,T){
+  let L=0,B=0,A=0;
+  if(hooked&&an&&ac.state==='running'&&isPlaying()){
+    an.getByteFrequencyData(fd);
+    let s=0,n=0; for(let i=1;i<96;i++){s+=fd[i];n++;} L=s/n/255;       // ~40 Hz – 4 kHz
+    s=0; for(let i=1;i<5;i++)s+=fd[i]; B=s/4/255;                      // ~40 – 210 Hz
+    s=0; n=0; for(let i=48;i<190;i++){s+=fd[i];n++;} A=s/n/255;        // ~2 – 8 kHz
+    react.peak=Math.max(L,react.peak*Math.pow(.9985,dt*60)); L=L/Math.max(.2,react.peak); B=B/Math.max(.2,react.peak*1.2); A=A/Math.max(.08,react.peak*.5);
+  } else if(env&&isPlaying()){
+    const i=Math.min(env.env.length-1,Math.max(0,Math.floor(T/env.hop))); L=env.env[i]; B=env.low[i]; A=Math.max(0,L-B)*.8;
+  }
+  const k=(v,t,up,down)=>v+(t-v)*(1-Math.exp(-dt*(t>v?up:down)));
+  react.level=k(react.level,clamp(L),9,2.4); react.bass=k(react.bass,clamp(B),11,2.8); react.air=k(react.air,clamp(A),8,3);
+  react.hp=(react.hp+1)&63; react.hist[react.hp]=react.level;
+}
+const hist=(back)=>react.hist[(react.hp-back+64)&63];
+
+/* ======================================================================
+   layout + sizing
+   ====================================================================== */
+const cv=el.scene, ctx=cv.getContext('2d');
+let dpr=1, VW=0, VH=0, box={x:0,y:0,w:300,h:300}, FS=18, L=null, dirty=true, calDirty=true, cuesSource='analysed from this file', fontKey='';
+function sizeCanvas(){
+  VW=innerWidth; VH=innerHeight; dpr=Math.min(devicePixelRatio||1,2);
+  while(VW*VH*dpr*dpr>4.4e6 && dpr>1) dpr-=.25;
+  cv.width=Math.round(VW*dpr); cv.height=Math.round(VH*dpr);
+}
+function fit(){
+  sizeCanvas();
+  const landscape=matchMedia('(max-height:520px) and (min-aspect-ratio:13/10)').matches;
+  const dedR=el.ded.getBoundingClientRect(), cs=getComputedStyle(el.stage), gap=parseFloat(cs.rowGap)||24, padY=parseFloat(cs.paddingTop)+parseFloat(cs.paddingBottom);
+  let availH, availW;
+  if(landscape){ availH=VH*.84; availW=VW-dedR.width-gap-64; }
+  else { availH=VH-dedR.height-gap-padY-30; availW=VW*.94; }
+  const H=clamp(Math.min(availH,availW/HEART.asp,VH*.7),150,820), W=H*HEART.asp;
+  el.wrap.style.width=W.toFixed(1)+'px'; el.wrap.style.height=H.toFixed(1)+'px';
+  const f=clamp(H/25,10.5,28), key=[Math.round(W),Math.round(H),f.toFixed(1),dpr,fontKey].join('|');
+  if(!L||L.key!==key){ L=layoutWords(W,H,f); L.key=key; L.W=W; L.H=H; FS=f; buildSprites(f,L.ww0,dpr); }
+  placeBox();
+  // name sweep geometry
+  const nr=el.name.getBoundingClientRect(); el.name.style.setProperty('--nw',nr.width+'px');
+  letters.forEach(s=>s.style.setProperty('--ox',(s.getBoundingClientRect().left-nr.left)+'px'));
+  dirty=true;
+}
+function placeBox(){ const r=el.wrap.getBoundingClientRect(); box={x:r.left,y:r.top,w:r.width,h:r.height}; dirty=true; }
+let rzT=0; addEventListener('resize',()=>{ clearTimeout(rzT); rzT=setTimeout(()=>{ fit(); calDirty=true; },120); });
+addEventListener('scroll',()=>placeBox(),{passive:true});
+/* fonts: lay out with whatever is available now, then re-fit in place (the timeline is untouched) when the faces arrive */
+function checkFonts(){ const k=(document.fonts&&document.fonts.check('20px "Pirata One"')?'p':'f')+(document.fonts&&document.fonts.check('italic 20px "Cormorant Garamond"')?'c':'f'); if(k!==fontKey){ fontKey=k; fit(); } }
+if(document.fonts){
+  Promise.race([document.fonts.load('40px "Pirata One"',WORD).catch(()=>{}),new Promise(r=>setTimeout(r,2500))]).then(checkFonts);
+  document.fonts.load('italic 20px "Cormorant Garamond"').catch(()=>{});
+  document.fonts.addEventListener&&document.fonts.addEventListener('loadingdone',checkFonts);
+  document.fonts.ready&&document.fonts.ready.then(checkFonts);
+}
+
+/* ======================================================================
+   drawing
+   ====================================================================== */
+const ptr={x:-999,y:-999,s:0,on:false};
+addEventListener('pointermove',e=>{ ptr.x=e.clientX; ptr.y=e.clientY; ptr.on=true; });
+addEventListener('pointerdown',e=>{ ptr.x=e.clientX; ptr.y=e.clientY; ptr.on=true; });
+addEventListener('pointerup',e=>{ if(e.pointerType!=='mouse')ptr.on=false; });
+document.documentElement.addEventListener('mouseleave',()=>{ ptr.on=false; });
+
+const motes=(()=>{ const r=rng(31); return Array.from({length:30},()=>({x:r(),y:r(),r:.5+r()*1.1,vx:(r()-.5)*.00001,vy:.00002+r()*.00006,a:.06+r()*.14,p:r()*6.28})); })();
+const petals=(()=>{ const r=rng(77); return Array.from({length:7},()=>({x:r(),y:r(),s:5+r()*5,vy:.000012+r()*.00002,p:r()*6.28,a:.10+r()*.10})); })();
+function drawAtmosphere(now,st){
+  ctx.globalCompositeOperation='source-over';
+  if(RM) return;
+  const amb=smooth(st.seed*.4+st.form*.6)*(.5+.5*st.exhale);
+  for(const m of motes){
+    const x=((m.x+m.vx*now)%1+1)%1*VW+Math.sin(now/4000+m.p)*10, y=VH-((m.y*VH+m.vy*now*VH)%VH);
+    ctx.fillStyle='rgba(190,120,135,'+(m.a*amb*(.6+.4*Math.sin(now/2500+m.p))).toFixed(3)+')';
+    ctx.beginPath(); ctx.arc(x,y,m.r,0,6.283); ctx.fill();
+  }
+  const pa=smooth(st.awake*1.2);
+  if(pa>.01) for(const p of petals){
+    const y=((p.y*(VH+80)+p.vy*now*(VH+80))%(VH+80))-40, x=p.x*VW+Math.sin(now/3300+p.p)*38, rot=now/2600+p.p, fl=.35+.65*Math.abs(Math.cos(now/1900+p.p));
+    ctx.save(); ctx.translate(x,y); ctx.rotate(rot); ctx.scale(1,fl); ctx.fillStyle='rgba(125,14,34,'+(p.a*pa*.9).toFixed(3)+')';
+    const s=p.s; ctx.beginPath(); ctx.moveTo(0,-s); ctx.quadraticCurveTo(s*.95,-s*.1,0,s*1.5); ctx.quadraticCurveTo(-s*.95,-s*.1,0,-s); ctx.fill(); ctx.restore();
+  }
+}
+function drawHeart(T,st,now,dt,beatCore){
+  if(!L) return;
+  const {W,H,items}=L, cx=box.x+W/2, cy=box.y+H*.54;
+  const lvl=.78+.22*react.level, amp=st.alive*lvl;
+  const sH=RM?1:1+.017*beatCore*amp;
+  const cores=box.y+(HEART.ymax-HEART.cy)/(HEART.ymax-HEART.ymin)*H;        // y of the heart's core
+  // ring beats: the pulse leaves the core and travels outward
+  const ring=[]; for(let b=0;b<8;b++) ring.push(RM?0:beatAt(T-(b/7)*.30));
+  // halo
+  const haloA=clamp((st.halo+.10*react.bass*st.awake+.05*beatCore*st.alive)*st.exhale,0,1);
+  ctx.globalCompositeOperation='lighter';
+  if(haloA>.003){ const s=H*2.3; ctx.globalAlpha=haloA; ctx.drawImage(HALO,cx-s/2,cores-s/2,s,s); }
+  // the seed of light
+  if(st.seed>.003){ const k=beatCore*st.alive, s=H*(.07+.03*k)*(1+st.form*.4); ctx.globalAlpha=st.seed*(1-.75*smooth(st.form*3))*(.7+.3*Math.min(1,k)); ctx.drawImage(SEED,cx-s/2,cores-s/2,s,s); }
+  ctx.globalAlpha=1;
+  // lamp under the pointer
+  ptr.s+=((ptr.on&&!RM&&T>cues.heartBegin?1:0)-ptr.s)*(1-Math.exp(-dt*(ptr.on?7:3)));
+  const lampR=Math.max(90,H*.2), px=(ptr.x-cx)/sH+cx, py=(ptr.y-cy)/sH+cy;
+  const span=Math.max(.5,cues.heartFormed-cues.heartBegin-DA), hspan=Math.max(.5,cues.heartAlive-cues.heartAwake-DH);
+  const sw=SP.w/SP.sc, sh=SP.h/SP.sc, tb=cues.climax, ex=st.exhale;
+  const aud=react.air;
+  for(const it of items){
+    const ta=cues.heartBegin+it.u*span+it.j*.6, pa=(T-ta)/DA;
+    if(pa<=0){ it.vis=0; continue; }
+    const th=cues.heartAwake+it.rn*hspan+it.j*.3, h=smooth((T-th)/DH);
+    const sharp=smooth((pa-.30)/.70), soft=smooth(pa/.45)*(1-smooth((pa-.35)/.65));
+    const front=Math.pow(Math.sin(Math.PI*h),2);
+    const rb=ring[it.bin]*amp;
+    const bl=bump((T-(tb+it.rn*2.6))/2.4);                                 // the climax wave
+    let lamp=0; if(ptr.s>.01){ const dx=box.x+it.x-px, dy=box.y+it.y-py, d=Math.hypot(dx,dy); lamp=smooth(1-d/lampR)*ptr.s; }
+    const rv=(hist(1+it.bin*3)-.4)*.16, sh2=(it.kind==='ruby'?0:aud*.12);
+    const heat=clamp(h+lamp*.7+st.bloomHold*.25);
+    const hotA=sharp*clamp(heat*.93+rv*h+.10*rb+.06*st.bloomHold)*ex;
+    it.vis=1; it.sharp=sharp; it.ghostA=sharp*(.80+.2*lamp)*(RM?1:1);
+    it.hotA=hotA; it.softA=clamp(soft*.8+sharp*(.34*front+.22*rb*h+.30*bl+.5*lamp+.04*h)+sh2*h)*ex;
+    it.flareA=clamp(sharp*(.55*bl+.15*rb*h+.38*lamp+.28*front+sh2*h))*(.6+.4*ex);
+  }
+  ctx.save(); ctx.translate(cx,cy); ctx.scale(sH,sH); ctx.translate(-cx,-cy);
+  const dw=(it,img)=>{ const w=sw*it.sx, hh=sh*it.sy; ctx.drawImage(img,box.x+it.x-w/2,box.y+it.y-hh/2,w,hh); };
+  ctx.globalCompositeOperation='lighter';
+  for(const it of items){ if(it.vis&&it.softA>.01){ ctx.globalAlpha=it.softA; dw(it,SP.soft); } }
+  ctx.globalCompositeOperation='source-over';
+  for(const it of items){
+    if(!it.vis) continue;
+    if(it.ghostA>.01){ ctx.globalAlpha=it.ghostA; dw(it,SP.ghost); }
+    if(it.hotA>.01){ ctx.globalAlpha=it.hotA; dw(it, it.kind==='rose'?SP.rose:it.kind==='silver'?SP.silver:SP.hot[it.bucket]); }
+  }
+  ctx.globalCompositeOperation='lighter';
+  for(const it of items){ if(it.vis&&it.flareA>.01){ ctx.globalAlpha=it.flareA; dw(it,SP.flare); } }
+  ctx.restore(); ctx.globalAlpha=1; ctx.globalCompositeOperation='source-over';
+}
+
+/* ---------- the name and the dedication (DOM, so the serif stays crisp) ---------- */
+const domCache=new Map();
+function setStyle(node,key,val,apply){ if(domCache.get(node)?.[key]===val) return; (domCache.get(node)||domCache.set(node,{}).get(node))[key]=val; apply(); }
+function updateDom(T,st,beatCore){
+  const c=cues;
+  letters.forEach((s,i)=>{
+    const p=smooth((T-(c.nameReveal+i*.34))/2.6), q=Math.round(p*400)/400;
+    setStyle(s,'p',q,()=>{ s.style.opacity=q; s.style.transform=q>=1?'none':'translateY('+((1-q)*14).toFixed(2)+'px)'; s.style.filter=q>=1?'none':'blur('+((1-q)*7).toFixed(2)+'px)'; });
+  });
+  const nameW=parseFloat(el.name.style.getPropertyValue('--nw'))||300, sp=clamp((T-c.nameSweep)/2.8);
+  const swx=(sp<=0||sp>=1)?-900:lerp(-110,nameW+110,sp*sp*(3-2*sp)); setStyle(el.name,'sw',Math.round(swx),()=>el.name.style.setProperty('--sw',Math.round(swx)+'px'));
+  const ng=(5+11*st.bloomHold+5*beatCore*st.awake).toFixed(1), na=((.10+.30*st.bloomHold+.10*beatCore*st.awake)*clamp((T-c.nameReveal)/3)*st.exhale).toFixed(3);
+  setStyle(el.name,'g',ng+na,()=>{ el.name.style.setProperty('--ng',ng+'px'); el.name.style.setProperty('--na',na); });
+  const o1=Math.round(easeOut((T-(c.nameReveal+1.4))/2.6)*200)/200, o2=Math.round(smooth((T-(c.nameReveal+2.8))/1.2)*100)/100;
+  setStyle(el.name,'o',o1+'|'+o2,()=>{ el.ded.style.setProperty('--o1',o1); el.ded.style.setProperty('--o2',o2); });
+  lines.forEach((s,i)=>{ const p=smooth((T-(i?c.dedication2:c.dedication1))/3.0), q=Math.round(p*400)/400;
+    setStyle(s,'p',q,()=>{ s.style.opacity=q; s.style.transform=q>=1?'none':'translateY('+((1-q)*14).toFixed(2)+'px)'; }); });
+  const em=clamp(smooth((T-(c.dedication2+2.2))/1.6)*(.30+.70*Math.min(1,beatCore*st.alive*1.1)))*(.55+.45*st.exhale), emq=Math.round(em*50)/50;
+  setStyle(el.quote,'em',emq,()=>el.quote.style.setProperty('--em',emq));
+}
+
+/* ======================================================================
+   frame loop
+   ====================================================================== */
+const REST_T=()=>cues.resolve+8;
+let prevTS=0, calClockTS=0;
+function frame(ts){
+  requestAnimationFrame(frame);
+  const dt=Math.min(.1,(ts-prevTS)/1000||.016); prevTS=ts;
+  let T=getT(ts);
+  if(T<prevT && T>prevT-.25 && isPlaying()) T=prevT; prevT=T;      // never step backwards on timer jitter
+  const Tv=RM?REST_T():T+CONFIG.syncOffset;
+  if(RM&&!dirty&&!calDirty&&!(el.cal&&!el.cal.hidden)) { return; }
+  updateReact(dt,T);
+  const st=timelineState(Tv), beatCore=RM?0:beatAt(Tv);
+  ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,VW,VH);
+  drawAtmosphere(ts,st); drawHeart(Tv,st,ts,dt,beatCore); updateDom(Tv,st,beatCore);
+  dirty=false;
+  if(!el.cal.hidden && (ts-calClockTS>90||calDirty)){ calClockTS=ts; drawCal(T); }
+  window.AYLIN.t=T;
+}
+
+/* ======================================================================
+   dock, keyboard, drag and drop
+   ====================================================================== */
+const ICON={
+  play:'<svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24"><path d="M8.5 5.5v13M15.5 5.5v13"/></svg>',
+  vol:'<svg viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/></svg>',
+  mute:'<svg viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>'
+};
+function syncButtons(){
+  const playing=isPlaying();
+  el.bPlay.innerHTML=playing?ICON.pause:ICON.play; el.bPlay.setAttribute('aria-label',playing?'Pause':'Play');
+  el.bMute.innerHTML=(P.muted||P.vol===0)?ICON.mute:ICON.vol; el.bMute.setAttribute('aria-label',P.muted?'Unmute':'Mute');
+  el.vol.value=P.muted?0:P.vol; el.vol.style.setProperty('--v',(el.vol.value*100)+'%');
+  if(!playing) showDock(true);
+}
+let dockTimer=0;
+function showDock(stay){ el.dock.classList.add('show'); clearTimeout(dockTimer); if(stay||!el.cal.hidden)return;
+  dockTimer=setTimeout(()=>{ if(isPlaying()&&!el.dock.matches(':hover')&&!el.dock.contains(document.activeElement)) el.dock.classList.remove('show'); },3200); }
+['pointermove','pointerdown','keydown','touchstart'].forEach(ev=>addEventListener(ev,()=>showDock(false),{passive:true}));
+el.bPlay.onclick=toggle; el.bRestart.onclick=restart;
+el.bMute.onclick=()=>{ unlockAudio(); P.muted=!P.muted; applyVolume(); syncButtons(); };
+el.vol.oninput=()=>{ unlockAudio(); P.vol=+el.vol.value; P.muted=false; applyVolume(); syncButtons(); };
+el.bLoad.onclick=()=>el.file.click();
+el.file.onchange=()=>{ const f=el.file.files[0]; el.file.value=''; if(f)loadUserFile(f); };
+el.enter.addEventListener('click',enterNow);
+let noteTimer=0;
+function note(msg,ms=6000){ el.note.textContent=msg; el.note.classList.add('on'); clearTimeout(noteTimer); noteTimer=setTimeout(()=>el.note.classList.remove('on'),ms); }
+
+addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey||e.altKey) return;
+  const tag=(e.target&&e.target.tagName)||''; const typing=tag==='INPUT'&&e.target.type==='number'||tag==='TEXTAREA';
+  if(enterShown&&!['Shift','Control','Alt','Meta','Tab'].includes(e.key)){ e.preventDefault(); enterNow(); return; }
+  if(typing) return;
+  const k=e.key.toLowerCase();
+  if(k==='escape'&&!el.cal.hidden){ closeCal(); return; }
+  if(tag==='BUTTON'&&(e.key===' '||e.key==='Enter')) return;           // let a focused button handle its own activation
+  if(e.key===' '||k==='k'){ e.preventDefault(); toggle(); }
+  else if(k==='r') restart();
+  else if(k==='m'){ el.bMute.click(); }
+  else if(k==='l') el.file.click();
+  else if(k==='c') el.cal.hidden?openCal():closeCal();
+  else if(e.key==='ArrowUp'&&tag!=='INPUT'){ e.preventDefault(); P.vol=clamp(P.vol+.05); P.muted=false; applyVolume(); syncButtons(); }
+  else if(e.key==='ArrowDown'&&tag!=='INPUT'){ e.preventDefault(); P.vol=clamp(P.vol-.05); applyVolume(); syncButtons(); }
+  else if(e.key==='ArrowRight'&&tag!=='INPUT'){ seek(prevT+5); }
+  else if(e.key==='ArrowLeft'&&tag!=='INPUT'){ seek(prevT-5); }
+});
+let dragN=0;
+addEventListener('dragenter',e=>{ e.preventDefault(); if(dragN++===0) note('Drop an audio file to use it as the soundtrack.',4000); });
+addEventListener('dragleave',e=>{ e.preventDefault(); dragN=Math.max(0,dragN-1); });
+addEventListener('dragover',e=>e.preventDefault());
+addEventListener('drop',e=>{ e.preventDefault(); dragN=0; const f=[...(e.dataTransfer?.files||[])].find(f=>/^audio\//.test(f.type)||/\.(mp3|m4a|aac|wav|ogg|oga|flac|opus)$/i.test(f.name)); if(f)loadUserFile(f); else note('That does not look like an audio file.',4000); });
+
+/* ======================================================================
+   decoded analysis: envelope for the calibration strip, the fallback response, and suggestions for other files
+   ====================================================================== */
+async function analyse(blob){
+  const buf=await blob.arrayBuffer(), OAC=window.OfflineAudioContext||window.webkitOfflineAudioContext, oc=new OAC(1,1,44100);
+  const ab=await new Promise((res,rej)=>{ const p=oc.decodeAudioData(buf,res,rej); if(p&&p.catch)p.catch(rej); });
+  const sr=ab.sampleRate, n=ab.length, hopS=Math.round(sr*.025), frames=Math.floor(n/hopS), chn=[];
+  for(let c=0;c<ab.numberOfChannels;c++)chn.push(ab.getChannelData(c));
+  const e=new Float32Array(frames), lo=new Float32Array(frames), a=1-Math.exp(-2*Math.PI*150/sr); let lp=0;
+  for(let f=0;f<frames;f++){ let s=0,sl=0; const i0=f*hopS;
+    for(let i=i0;i<i0+hopS;i++){ let v=0; for(let c=0;c<chn.length;c++)v+=chn[c][i]; v/=chn.length; s+=v*v; lp+=a*(v-lp); sl+=lp*lp; }
+    e[f]=Math.sqrt(s/hopS); lo[f]=Math.sqrt(sl/hopS); }
+  const pk=arr=>{ const t=Array.from(arr).sort((x,y)=>x-y); return Math.max(1e-6,t[Math.floor(t.length*.995)]); };
+  const pe=pk(e), pl=pk(lo); for(let i=0;i<frames;i++){ e[i]=Math.min(1,e[i]/pe); lo[i]=Math.min(1,lo[i]/pl); }
+  return { env:e, low:lo, hop:hopS/sr, duration:ab.duration };
+}
+function suggestCues(r){
+  const D=r.duration, e=r.env, hop=r.hop; let t0=0; for(let i=0;i<e.length;i++){ if(e[i]>.08){ t0=i*hop; break; } }
+  const span=Math.max(10,D-t0), at=f=>+(t0+span*f).toFixed(2);
+  const win=Math.max(1,Math.round(1.5/hop)); let best=-1,bi=0,run=0;                       // loudest 1.5 s inside the last third
+  const a=Math.floor(e.length*.5), b=Math.floor(e.length*.9);
+  for(let i=a;i<b;i++){ run+=e[i]; if(i-a>=win)run-=e[i-win]; if(i-a>=win&&run>best){best=run;bi=i-win/2;} }
+  const climax=bi?+(bi*hop).toFixed(2):at(.8);
+  const c={ ember:+(t0+.1).toFixed(2), heartBegin:+(t0+1.6).toFixed(2), heartFormed:at(.20), heartAwake:at(.26), heartAlive:at(.36), nameReveal:at(.42), nameSweep:at(.50),
+            dedication1:at(.56), dedication2:at(.64), climax, resolve:+Math.min(D-3,climax+3.8).toFixed(2) };
+  const keys=CUE_INFO.map(x=>x[0]); for(let i=1;i<keys.length;i++) if(c[keys[i]]<c[keys[i-1]]+.6) c[keys[i]]=+(c[keys[i-1]]+.6).toFixed(2);
+  Object.assign(cues,c);
+}
+
+/* ======================================================================
+   calibration panel
+   ====================================================================== */
+const calInputs={};
+function buildCal(){
+  el.calRows.textContent='';
+  const row=(key,label,sub,get,set)=>{
+    const l=document.createElement('label'); l.htmlFor='ci_'+key; l.innerHTML=label+'<small>'+sub+'</small>';
+    const inp=document.createElement('input'); inp.type='number'; inp.step='0.01'; inp.id='ci_'+key; inp.value=get().toFixed(2);
+    inp.addEventListener('change',()=>{ const v=parseFloat(inp.value); if(isFinite(v)){ set(v); afterCueEdit(); } });
+    const now=document.createElement('button'); now.type='button'; now.textContent='Set to now'; now.title='Use the current playback time';
+    now.onclick=()=>{ set(+(prevT).toFixed(2)); inp.value=get().toFixed(2); afterCueEdit(); };
+    const go=document.createElement('button'); go.type='button'; go.className='go'; go.textContent='Preview'; go.title='Play from 2 seconds before this cue';
+    go.onclick=()=>{ seek(get()-2); play(); };
+    el.calRows.append(l,inp,now,go); calInputs[key]=inp;
+  };
+  CUE_INFO.forEach(([k,label])=>row(k,label,k+'',()=>cues[k],v=>{cues[k]=v;}));
+  row('syncOffset','Visual offset','seconds; negative delays the picture',()=>CONFIG.syncOffset,v=>{CONFIG.syncOffset=v;});
+}
+function afterCueEdit(){ if(P.builtin) buildPulsesGrid(); cuesSource=P.builtin?'edited by hand':'edited by hand'; calDirty=true; dirty=true; updateCalInfo(); }
+function updateCalInfo(){ el.calInfo.textContent='Cues '+cuesSource+'. Heartbeat: '+pulseSource+'.'+(P.failed?' Playing without sound.':'')+(env?'':' (waveform not available)'); }
+function refreshCalInputs(){ for(const [k] of CUE_INFO) if(document.activeElement!==calInputs[k]) calInputs[k].value=cues[k].toFixed(2); }
+function openCal(){ if(!Object.keys(calInputs).length)buildCal(); el.cal.hidden=false; showDock(true); refreshCalInputs(); updateCalInfo(); sizeStrip(); calDirty=true; }
+function closeCal(){ el.cal.hidden=true; el.calOut.hidden=true; showDock(false); }
+el.bCal.onclick=()=>el.cal.hidden?openCal():closeCal(); el.calClose.onclick=closeCal;
+el.calReset.onclick=()=>{ Object.assign(cues,DEFAULT_CUES); if(P.builtin){cuesSource='analysed from this file';buildPulsesGrid();} refreshCalInputs(); updateCalInfo(); calDirty=true; dirty=true; };
+el.calCopy.onclick=async()=>{
+  const out='cues: {\n'+CUE_INFO.map(([k])=>'  '+k+': '+cues[k].toFixed(2)).join(',\n')+'\n},\nsyncOffset: '+CONFIG.syncOffset+',';
+  el.calOut.value=out; el.calOut.hidden=false;
+  try{ await navigator.clipboard.writeText(out); note('Cue times copied. Paste them over CONFIG.cues in the file.',4500); }catch(e){ el.calOut.select(); note('Select the text below and copy it into CONFIG.cues.',4500); }
+};
+let stripW=0, stripH=0;
+function sizeStrip(){ const r=el.calStrip.getBoundingClientRect(), d=Math.min(devicePixelRatio||1,2); stripW=Math.max(100,r.width); stripH=r.height||64; el.calStrip.width=stripW*d; el.calStrip.height=stripH*d; }
+addEventListener('resize',()=>{ if(!el.cal.hidden)sizeStrip(); });
+function drawCal(T){
+  if(!stripW) sizeStrip(); const g=el.calStrip.getContext('2d'), d=el.calStrip.width/stripW, dur=Math.max(1,P.dur||75);
+  g.setTransform(d,0,0,d,0,0); g.clearRect(0,0,stripW,stripH);
+  if(env){ const n=Math.floor(stripW); g.fillStyle='rgba(168,144,153,.42)'; for(let x=0;x<n;x++){ const i0=Math.floor(x/n*env.env.length), i1=Math.max(i0+1,Math.floor((x+1)/n*env.env.length)); let m=0; for(let i=i0;i<i1;i++)m=Math.max(m,env.env[i]); const h=Math.max(1,m*stripH*.78); g.fillRect(x,stripH-h,1,h); } }
+  g.font='11px Georgia,serif'; g.textBaseline='top';
+  CUE_INFO.forEach(([k],i)=>{ const x=cues[k]/dur*stripW; g.strokeStyle='rgba(208,22,48,.85)'; g.beginPath(); g.moveTo(x+.5,0); g.lineTo(x+.5,stripH); g.stroke(); g.fillStyle='#d5304a'; g.fillText(String(i+1),x+3,2+(i%2)*11); });
+  const px=T/dur*stripW; g.strokeStyle='#e9dde1'; g.beginPath(); g.moveTo(px+.5,0); g.lineTo(px+.5,stripH); g.stroke();
+  el.calClock.textContent=fmt(T)+' / '+fmt(dur); refreshCalInputs(); calDirty=false;
+}
+el.calStrip.addEventListener('pointerdown',e=>{ const r=el.calStrip.getBoundingClientRect(); const mv=ev=>{ seek(clamp((ev.clientX-r.left)/r.width)*P.dur); calDirty=true; }; mv(e); const up=()=>{removeEventListener('pointermove',mv);removeEventListener('pointerup',up);}; addEventListener('pointermove',mv); addEventListener('pointerup',up); });
+
+/* ======================================================================
+   start
+   ====================================================================== */
+window.AYLIN={ t:0, config:CONFIG, cues, seek, play, pause, restart, state:()=>({mode:P.mode,dur:P.dur,playing:isPlaying(),ended:P.ended,hooked,ctx:ac&&ac.state,pulses:pulses.length,pulseSource,enterShown,words:L&&L.items.length,env:!!env,failed:P.failed}), layout:()=>L };
+syncButtons(); fit(); requestAnimationFrame(ts=>{ prevTS=ts; frame(ts); });
+boot();
+})();
+</script>
+</body>
+</html>
